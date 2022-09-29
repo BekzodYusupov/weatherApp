@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -36,10 +37,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -71,13 +74,20 @@ dependencies {
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.9.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3'
 
     //Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
     implementation 'com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.6'
-//    implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.5.6'
+    implementation 'com.github.kirich1409:viewbindingpropertydelegate:1.5.6'
+
+    //di
+    implementation "com.google.dagger:hilt-android:2.39.1"
+    kapt "com.google.dagger:hilt-compiler:2.38.1"
+
+    //graph
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

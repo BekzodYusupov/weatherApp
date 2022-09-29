@@ -2,44 +2,73 @@ package uz.gita.weatherapp.Repository.impl
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import uz.gita.weatherapp.Repository.Repository
+import uz.gita.weatherapp.data.model.forecast.ForecastResponseData
 import uz.gita.weatherapp.data.model.weather.WeatherResponseData
-import uz.gita.weatherapp.data.remote.GeoClient
-import uz.gita.weatherapp.data.remote.WeatherClient
+import uz.gita.weatherapp.data.remote.ForecastApi
+import uz.gita.weatherapp.data.remote.GeoApi
+import uz.gita.weatherapp.data.remote.WeatherApi
+import javax.inject.Inject
 
-class RepositoryImpl : Repository {
-    private val geoApi = GeoClient.getGeoApi()
-    private val weatherApi = WeatherClient.getWeatherApi()
+class RepositoryImpl @Inject constructor(
+    private val geoApi: GeoApi,
+    private val weatherApi: WeatherApi,
+    private val foreCastApi: ForecastApi
+) : Repository {
+    private lateinit var lat: String
+    private lateinit var lon: String
 
-    override suspend fun getData(country: String): Flow<WeatherResponseData> {
-        Log.d("TTT", "entered inside getData - in repository $country")
-        val responseFlow = flow {
-            Log.d("TTT", "entered inside flow - in repository")
-            val geoResponse = geoApi.getData(country = country)
-            if (geoResponse.isSuccessful) {
-                if (geoResponse.body() != null) {
-                    Log.d("TTT", "response success Geo - in repository")
-                    val lat: String = geoResponse.body()!![0].lat.toString()
-                    val lon: String = geoResponse.body()!![0].lon.toString()
-                    val weatherResponse = weatherApi.getWeatherData(lat = lat, lon = lon)
+    override suspend fun getData(country: String) {
+        val response = geoApi.getData(country)
+        Log.d("oooo","in repository getData() ishladi")
+        if (response.isSuccessful) {
+            Log.d("oooo","in repository getData(), response is successful ishladi")
+            response.body()?.get(0)?.let {
+                lat = it.lat.toString()
+                lon = it.lon.toString()
+            }
+        }
+    }
 
-                    if (weatherResponse.isSuccessful) {
-                        if (weatherResponse.body() != null) {
-                            emit(weatherResponse.body()!!)
-                        }
-                        Log.d("TTT", "response success Weather - in repository")
+    override suspend fun getWeather(): Flow<WeatherResponseData> {
+        Log.d("oooo","in repository getWeather() ishladi")
 
-                        Log.d("TTT", "${weatherResponse.body()} and ${weatherResponse.message()}")
-                    }
+        val responseFlow = flow<WeatherResponseData> {
+            val response = weatherApi.getWeatherData(lat, lon)
+            if (response.isSuccessful) {
+                Log.d("oooo","in repository getWeather(), response is successful ishladi")
+
+                response.body()?.let {
+                    emit(it)
                 }
             }
         }.flowOn(Dispatchers.IO)
+            .catch {  }
+        return responseFlow
+    }
+
+    override suspend fun getForecast(): Flow<ForecastResponseData> {
+        Log.d("oooo","in repository getForeCast() ishladi")
+        val responseFlow = flow<ForecastResponseData> {
+            val response = foreCastApi.getForecast(lat, lon)
+            if (response.isSuccessful) {
+                Log.d("oooo","in repository getForecast(), response is successful ishladi")
+                response.body()?.let {
+                    emit(it)
+                }
+            } else {
+                Log.d("oooo","in repository getForecast(), response is unsuccessful ishladi")
+            }
+        }.flowOn(Dispatchers.IO)
             .catch {
-                Log.d("TTT", "xatolik - ${it.message}")
+                Log.d("oooo","in repository getForecast() --- catch ---, ${it.message}\n ${it.cause}\n$it")
+
             }
         return responseFlow
     }

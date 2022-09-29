@@ -3,6 +3,7 @@ package uz.gita.weatherapp.data.remote
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
+import uz.gita.weatherapp.data.model.forecast.ForecastResponseData
 import uz.gita.weatherapp.data.model.weather.WeatherResponseData
 import uz.gita.weatherapp.utils.API_KEY
 
@@ -16,11 +17,4 @@ interface WeatherApi {
         @Query("lon") lon: String = "69.2787079",
         @Query("appid") appid: String = API_KEY
     ): Response<WeatherResponseData>
-
-/*    @GET("forecast")
-    fun getForecastData(
-        @Query("lat") lat: String,
-        @Query("lon") lon: String,
-        @Query("appid") appid: String
-    )*/
 }
